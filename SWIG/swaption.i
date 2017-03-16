@@ -56,6 +56,9 @@ class SwaptionPtr : public boost::shared_ptr<Instrument> {
             QL_REQUIRE(swap, "simple swap required");
             return new SwaptionPtr(new Swaption(swap,exercise,type));
         }
+		std::vector<Real> probabilites() {
+            return boost::dynamic_pointer_cast<Swaption>(*self)->result<std::vector<Real> >("probabilities");
+        }
     }
 };
 
@@ -93,6 +96,10 @@ class NonstandardSwaptionPtr : public boost::shared_ptr<Instrument> {
             return boost::dynamic_pointer_cast<NonstandardSwaption>(*self)->
                 calibrationBasket(swapIndex, swaptionVolatility, type);
         }
+
+		std::vector<Real> probabilites() {
+            return boost::dynamic_pointer_cast<NonstandardSwaption>(*self)->result<std::vector<Real> >("probabilities");
+        }
     }
 };
 
@@ -128,6 +135,10 @@ class FloatFloatSwaptionPtr : public boost::shared_ptr<Instrument> {
 
         Real underlyingValue() {
             return boost::dynamic_pointer_cast<FloatFloatSwaption>(*self)->result<Real>("underlyingValue");
+        }
+
+		std::vector<Real> probabilites() {
+            return boost::dynamic_pointer_cast<FloatFloatSwaption>(*self)->result<std::vector<Real> >("probabilities");
         }
     }
 };

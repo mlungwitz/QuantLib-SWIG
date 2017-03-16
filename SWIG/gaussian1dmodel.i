@@ -292,9 +292,21 @@ class Gaussian1dSwaptionEnginePtr : public boost::shared_ptr<PricingEngine> {
             const bool extrapolatePayoff = true,
             const bool flatPayoffExtrapolation = false,
             const Handle<YieldTermStructure> &discountCurve =
-                Handle<YieldTermStructure>()) {
+                Handle<YieldTermStructure>(),
+			std::string probabilityString = "None") {
+
+			Gaussian1dSwaptionEngine::Probabilities probabilityType;
+
+			if(probabilityString == "None")
+				probabilityType = Gaussian1dSwaptionEngine::None;
+			else if(probabilityString == "Naive")
+				probabilityType = Gaussian1dSwaptionEngine::Naive;
+			else if(probabilityString == "Digital")
+				probabilityType = Gaussian1dSwaptionEngine::Digital;
+			else
+				QL_FAIL("probabilityType " << probabilityString << "unknown.");
             return new Gaussian1dSwaptionEnginePtr(new Gaussian1dSwaptionEngine(model, integrationPoints, 
-                    stddevs, extrapolatePayoff, flatPayoffExtrapolation, discountCurve));
+                    stddevs, extrapolatePayoff, flatPayoffExtrapolation, discountCurve, probabilityType));
         }
     
     }
@@ -312,6 +324,7 @@ class Gaussian1dJamshidianSwaptionEnginePtr : public boost::shared_ptr<PricingEn
     }
 };
 
+
 %rename(Gaussian1dNonstandardSwaptionEngine) Gaussian1dNonstandardSwaptionEnginePtr;
 class Gaussian1dNonstandardSwaptionEnginePtr : public boost::shared_ptr<PricingEngine> {
   public:
@@ -326,42 +339,32 @@ class Gaussian1dNonstandardSwaptionEnginePtr : public boost::shared_ptr<PricingE
                                                         // compounded w.r.t. yts
                                                         // daycounter
             const Handle<YieldTermStructure> &discountCurve =
-                Handle<YieldTermStructure>()) {
+                Handle<YieldTermStructure>(),
+			std::string probabilityString = "None") {
+
+			Gaussian1dNonstandardSwaptionEngine::Probabilities probabilityType;
+
+			if(probabilityString == "None")
+				probabilityType = Gaussian1dNonstandardSwaptionEngine::None;
+			else if(probabilityString == "Naive")
+				probabilityType = Gaussian1dNonstandardSwaptionEngine::Naive;
+			else if(probabilityString == "Digital")
+				probabilityType = Gaussian1dNonstandardSwaptionEngine::Digital;
+			else
+				QL_FAIL("probabilityType " << probabilityString << "unknown.");
             return new Gaussian1dNonstandardSwaptionEnginePtr(new Gaussian1dNonstandardSwaptionEngine(model, integrationPoints, 
-                    stddevs, extrapolatePayoff, flatPayoffExtrapolation, oas, discountCurve));
+                    stddevs, extrapolatePayoff, flatPayoffExtrapolation, oas, discountCurve, probabilityType));
         }
     
     }
 
 };
 
-#if defined(SWIGJAVA) || defined(SWIGCSHARP)
-%rename(_Gaussian1dFloatFloatSwaptionEngine) Gaussian1dFloatFloatSwaptionEngine;
-#else
-%ignore Gaussian1dFloatFloatSwaptionEngine;
-#endif
-class Gaussian1dFloatFloatSwaptionEngine {
-  public:
-    enum Probabilities {  None,
-                          Naive,
-                          Digital };
-#if defined(SWIGJAVA) || defined(SWIGCSHARP)
-  private:
-    Gaussian1dFloatFloatSwaptionEngine();
-#endif
-};
 
 %rename(Gaussian1dFloatFloatSwaptionEngine) Gaussian1dFloatFloatSwaptionEnginePtr;
 class Gaussian1dFloatFloatSwaptionEnginePtr : public boost::shared_ptr<PricingEngine> {
   public:
     %extend {
-
-        static const Gaussian1dFloatFloatSwaptionEngine::Probabilities None
-            = Gaussian1dFloatFloatSwaptionEngine::None;
-        static const Gaussian1dFloatFloatSwaptionEngine::Probabilities Naive
-            = Gaussian1dFloatFloatSwaptionEngine::Naive;
-        static const Gaussian1dFloatFloatSwaptionEngine::Probabilities Digital
-            = Gaussian1dFloatFloatSwaptionEngine::Digital;
 
         Gaussian1dFloatFloatSwaptionEnginePtr(
                 const boost::shared_ptr<Gaussian1dModel> &model,
@@ -372,7 +375,18 @@ class Gaussian1dFloatFloatSwaptionEnginePtr : public boost::shared_ptr<PricingEn
                 const Handle<YieldTermStructure> &discountCurve =
                                                  Handle<YieldTermStructure>(),
                 const bool includeTodaysExercise = false,
-                const Gaussian1dFloatFloatSwaptionEngine::Probabilities probabilities = Gaussian1dFloatFloatSwaptionEngine::None) {
+				std::string probabilityString = "None") {
+
+				Gaussian1dFloatFloatSwaptionEngine::Probabilities probabilityType;
+
+				if(probabilityString == "None")
+					probabilityType = Gaussian1dFloatFloatSwaptionEngine::None;
+				else if(probabilityString == "Naive")
+					probabilityType = Gaussian1dFloatFloatSwaptionEngine::Naive;
+				else if(probabilityString == "Digital")
+					probabilityType = Gaussian1dFloatFloatSwaptionEngine::Digital;
+				else
+					QL_FAIL("probabilityType " << probabilityString << "unknown.");
             return new Gaussian1dFloatFloatSwaptionEnginePtr(
                 new Gaussian1dFloatFloatSwaptionEngine(model,
                                                        integrationPoints,
@@ -382,7 +396,7 @@ class Gaussian1dFloatFloatSwaptionEnginePtr : public boost::shared_ptr<PricingEn
                                                        oas,
                                                        discountCurve,
                                                        includeTodaysExercise,
-                                                       probabilities));
+                                                       probabilityType));
         }
 
     }
