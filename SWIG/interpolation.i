@@ -28,6 +28,10 @@
 using QuantLib::Extrapolator;
 %}
 
+%{
+using QuantLib::LinearInterpolation;
+%}
+
 %ignore Extrapolator;
 class Extrapolator {
     #if defined(SWIGRUBY)
@@ -207,6 +211,17 @@ struct Cubic {};
 struct MonotonicCubic {};
 struct DefaultLogCubic {};
 struct MonotonicLogCubic {};
+
+%extend SafeLinearInterpolation {
+  static LinearInterpolation::ExtrapolationType Flat(){
+    return LinearInterpolation::Flat;
+  }
+
+  static LinearInterpolation::ExtrapolationType Linear(){
+    return LinearInterpolation::Linear;
+  }
+}
+
 
 
 #endif

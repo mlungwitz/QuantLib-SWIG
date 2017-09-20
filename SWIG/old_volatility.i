@@ -254,9 +254,11 @@ class StrippedOptionletAdapterPtr
     : public boost::shared_ptr<OptionletVolatilityStructure> {
   public:
     %extend {
-        StrippedOptionletAdapterPtr(const boost::shared_ptr<StrippedOptionletBase> & stripper){
+                StrippedOptionletAdapterPtr(const boost::shared_ptr<StrippedOptionletBase> & stripper,
+									LinearInterpolation::ExtrapolationType shortTimeExtrapolation = LinearInterpolation::Linear,
+									LinearInterpolation::ExtrapolationType longTimeExtrapolation = LinearInterpolation::Linear){
             return new StrippedOptionletAdapterPtr(
-                new StrippedOptionletAdapter(stripper));
+                new StrippedOptionletAdapter(stripper, shortTimeExtrapolation, longTimeExtrapolation));
         }
     }
 };
