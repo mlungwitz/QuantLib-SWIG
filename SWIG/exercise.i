@@ -72,6 +72,8 @@ class AmericanExercise : public Exercise {
     AmericanExercise(const Date& earliestDate,
                         const Date& latestDate,
                         bool payoffAtExpiry = false);
+    AmericanExercise(const Date& latestDate,
+                         bool payoffAtExpiry = false);
 };
 
 %shared_ptr(BermudanExercise)

@@ -52,6 +52,7 @@ class TermStructure : public Observable {
     Date referenceDate() const;
     Date maxDate() const;
     Time maxTime() const;
+    Natural settlementDays() const;
     // from Extrapolator, since we can't use multiple inheritance
     // and we're already inheriting from Observable
     void enableExtrapolation();

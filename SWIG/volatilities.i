@@ -4,7 +4,7 @@
  Copyright (C) 2011 Lluis Pujol Bajador
  Copyright (C) 2015 Matthias Groncki
  Copyright (C) 2016 Peter Caspers
- Copyright (C) 2018 Matthias Lungwitz
+ Copyright (C) 2018, 2019 Matthias Lungwitz
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -78,6 +78,8 @@ class VolatilityTermStructure : public TermStructure {
   public:
     Real minStrike() const;
     Real maxStrike() const;
+    BusinessDayConvention businessDayConvention() const;
+    Date optionDateFromTenor(const Period&) const;
 };
 
 
@@ -151,15 +153,119 @@ class SwaptionVolatilityStructure : public VolatilityTermStructure {
   private:
     SwaptionVolatilityStructure();
   public:
-    Volatility volatility(const Date& start, const Period& length,
-                          Rate strike, bool extrapolate = false) const;
-    Volatility volatility(Time start, Time length,
-                          Rate strike, bool extrapolate = false) const;
-    Real blackVariance(const Date& start, const Period& length,
-                       Rate strike, bool extrapolate = false) const;
-    Real blackVariance(Time start, Time length,
-                       Rate strike, bool extrapolate = false) const;
-    Date optionDateFromTenor(const Period& p) const;
+    Volatility volatility(const Period& optionTenor,
+                          const Period& swapTenor,
+                          Rate strike,
+                          bool extrapolate = false) const;
+    //! returns the volatility for a given option date and swap tenor
+    Volatility volatility(const Date& optionDate,
+                          const Period& swapTenor,
+                          Rate strike,
+                          bool extrapolate = false) const;
+    //! returns the volatility for a given option time and swap tenor
+    Volatility volatility(Time optionTime,
+                          const Period& swapTenor,
+                          Rate strike,
+                          bool extrapolate = false) const;
+    //! returns the volatility for a given option tenor and swap length
+    Volatility volatility(const Period& optionTenor,
+                          Time swapLength,
+                          Rate strike,
+                          bool extrapolate = false) const;
+    //! returns the volatility for a given option date and swap length
+    Volatility volatility(const Date& optionDate,
+                          Time swapLength,
+                          Rate strike,
+                          bool extrapolate = false) const;
+    //! returns the volatility for a given option time and swap length
+    Volatility volatility(Time optionTime,
+                          Time swapLength,
+                          Rate strike,
+                          bool extrapolate = false) const;
+    //! returns the Black variance for a given option tenor and swap tenor
+    Real blackVariance(const Period& optionTenor,
+                       const Period& swapTenor,
+                       Rate strike,
+                       bool extrapolate = false) const;
+    //! returns the Black variance for a given option date and swap tenor
+    Real blackVariance(const Date& optionDate,
+                       const Period& swapTenor,
+                       Rate strike,
+                       bool extrapolate = false) const;
+    //! returns the Black variance for a given option time and swap tenor
+    Real blackVariance(Time optionTime,
+                       const Period& swapTenor,
+                       Rate strike,
+                       bool extrapolate = false) const;
+    //! returns the Black variance for a given option tenor and swap length
+    Real blackVariance(const Period& optionTenor,
+                       Time swapLength,
+                       Rate strike,
+                       bool extrapolate = false) const;
+    //! returns the Black variance for a given option date and swap length
+    Real blackVariance(const Date& optionDate,
+                       Time swapLength,
+                       Rate strike,
+                       bool extrapolate = false) const;
+    //! returns the Black variance for a given option time and swap length
+    Real blackVariance(Time optionTime,
+                       Time swapLength,
+                       Rate strike,
+                       bool extrapolate = false) const;
+    //! returns the shift for a given option tenor and swap tenor
+    Real shift(const Period& optionTenor,
+               const Period& swapTenor,
+               bool extrapolate = false) const;
+    //! returns the shift for a given option date and swap tenor
+    Real shift(const Date& optionDate,
+               const Period& swapTenor,
+               bool extrapolate = false) const;
+    //! returns the shift for a given option time and swap tenor
+    Real shift(Time optionTime,
+               const Period& swapTenor,
+               bool extrapolate = false) const;
+    //! returns the shift for a given option tenor and swap length
+    Real shift(const Period& optionTenor,
+               Time swapLength,
+               bool extrapolate = false) const;
+    //! returns the shift for a given option date and swap length
+    Real shift(const Date& optionDate,
+               Time swapLength,
+               bool extrapolate = false) const;
+    //! returns the shift for a given option time and swap length
+    Real shift(Time optionTime,
+               Time swapLength,
+               bool extrapolate = false) const;
+    //! returns the smile for a given option tenor and swap tenor
+    boost::shared_ptr<SmileSection> smileSection(const Period& optionTenor,
+                                                 const Period& swapTenor,
+                                                 bool extr = false) const;
+    //! returns the smile for a given option date and swap tenor
+    boost::shared_ptr<SmileSection> smileSection(const Date& optionDate,
+                                                 const Period& swapTenor,
+                                                 bool extr = false) const;
+    //! returns the smile for a given option time and swap tenor
+    boost::shared_ptr<SmileSection> smileSection(Time optionTime,
+                                                 const Period& swapTenor,
+                                                 bool extr = false) const;
+    //! returns the smile for a given option tenor and swap length
+    boost::shared_ptr<SmileSection> smileSection(const Period& optionTenor,
+                                                 Time swapLength,
+                                                 bool extr = false) const;
+    //! returns the smile for a given option date and swap length
+    boost::shared_ptr<SmileSection> smileSection(const Date& optionDate,
+                                                 Time swapLength,
+                                                 bool extr = false) const;
+    //! returns the smile for a given option time and swap length
+    boost::shared_ptr<SmileSection> smileSection(Time optionTime,
+                                                 Time swapLength,
+                                                 bool extr = false) const;
+    const Period& maxSwapTenor() const;
+    Time maxSwapLength() const;
+    VolatilityType volatilityType() const;
+    Time swapLength(const Period& swapTenor) const;
+    Time swapLength(const Date& start,
+                    const Date& end) const;
 };
 
 %template(SwaptionVolatilityStructureHandle) Handle<SwaptionVolatilityStructure>;
@@ -386,11 +492,26 @@ class ConstantSwaptionVolatility : public SwaptionVolatilityStructure {
 };
 
 %{
+using QuantLib::SwaptionVolatilityDiscrete;
 using QuantLib::SwaptionVolatilityMatrix;
+using QuantLib::SwaptionVolatilityCube;
 %}
 
+%shared_ptr(SwaptionVolatilityDiscrete);
+class SwaptionVolatilityDiscrete : public SwaptionVolatilityStructure {
+  private:
+    SwaptionVolatilityDiscrete();
+  public:
+    const std::vector<Period>& optionTenors() const;
+    const std::vector<Date>& optionDates() const;
+    const std::vector<Time>& optionTimes() const;
+    const std::vector<Period>& swapTenors() const;
+    const std::vector<Time>& swapLengths() const;
+    const Date optionDateFromTime(Time optionTime) const;
+};
+
 %shared_ptr(SwaptionVolatilityMatrix);
-class SwaptionVolatilityMatrix : public SwaptionVolatilityStructure {
+class SwaptionVolatilityMatrix : public SwaptionVolatilityDiscrete {
   public:
     SwaptionVolatilityMatrix(const Date& referenceDate,
                              const std::vector<Date>& dates,
@@ -400,25 +521,75 @@ class SwaptionVolatilityMatrix : public SwaptionVolatilityStructure {
                              const bool flatExtrapolation = false,
                              const VolatilityType type = ShiftedLognormal,
                              const Matrix& shifts = Matrix());
-    SwaptionVolatilityMatrix(const Calendar& calendar,
-                             BusinessDayConvention bdc,
-                             const std::vector<Period>& optionTenors,
-                             const std::vector<Period>& swapTenors,
-                             const std::vector<std::vector<Handle<Quote> > >& vols,
-                             const DayCounter& dayCounter,
-                             const bool flatExtrapolation = false,
-                             const VolatilityType type = ShiftedLognormal,
-                             const std::vector<std::vector<Real> >& shifts =
-                                          std::vector<std::vector<Real> >());
-    SwaptionVolatilityMatrix(const Calendar& calendar,
-                             BusinessDayConvention bdc,
-                             const std::vector<Period>& optionTenors,
-                             const std::vector<Period>& swapTenors,
-                             const Matrix& vols,
-                             const DayCounter& dayCounter,
-                             const bool flatExtrapolation = false,
-                             const VolatilityType type = ShiftedLognormal,
-                             const Matrix& shifts = Matrix());
+    //! floating reference date, floating market data
+    SwaptionVolatilityMatrix(
+                const Calendar& calendar,
+                BusinessDayConvention bdc,
+                const std::vector<Period>& optionTenors,
+                const std::vector<Period>& swapTenors,
+                const std::vector<std::vector<Handle<Quote> > >& vols,
+                const DayCounter& dayCounter,
+                const bool flatExtrapolation = false,
+                const VolatilityType type = ShiftedLognormal,
+                const std::vector<std::vector<Real> >& shifts
+                = std::vector<std::vector<Real> >());
+    //! fixed reference date, floating market data
+    SwaptionVolatilityMatrix(
+                const Date& referenceDate,
+                const Calendar& calendar,
+                BusinessDayConvention bdc,
+                const std::vector<Period>& optionTenors,
+                const std::vector<Period>& swapTenors,
+                const std::vector<std::vector<Handle<Quote> > >& vols,
+                const DayCounter& dayCounter,
+                const bool flatExtrapolation = false,
+                const VolatilityType type = ShiftedLognormal,
+                const std::vector<std::vector<Real> >& shifts
+                = std::vector<std::vector<Real> >());
+    //! floating reference date, fixed market data
+    SwaptionVolatilityMatrix(
+                const Calendar& calendar,
+                BusinessDayConvention bdc,
+                const std::vector<Period>& optionTenors,
+                const std::vector<Period>& swapTenors,
+                const Matrix& volatilities,
+                const DayCounter& dayCounter,
+                const bool flatExtrapolation = false,
+                const VolatilityType type = ShiftedLognormal,
+                const Matrix& shifts = Matrix());
+    //! fixed reference date, fixed market data
+    SwaptionVolatilityMatrix(
+                const Date& referenceDate,
+                const Calendar& calendar,
+                BusinessDayConvention bdc,
+                const std::vector<Period>& optionTenors,
+                const std::vector<Period>& swapTenors,
+                const Matrix& volatilities,
+                const DayCounter& dayCounter,
+                const bool flatExtrapolation = false,
+                const VolatilityType type = ShiftedLognormal,
+                const Matrix& shifts = Matrix());
+    std::pair<Size,Size> locate(const Date& optionDate,
+                                const Period& swapTenor) const;
+    std::pair<Size,Size> locate(Time optionTime,
+                                Time swapLength) const;
+};
+
+%shared_ptr(SwaptionVolatilityCube);
+class SwaptionVolatilityCube : public SwaptionVolatilityDiscrete {
+  private:
+    SwaptionVolatilityCube();
+  public:
+    Rate atmStrike(const Date& optionDate,
+                   const Period& swapTenor) const;
+    Rate atmStrike(const Period& optionTenor,
+                   const Period& swapTenor) const;
+    Handle<SwaptionVolatilityStructure> atmVol() const;
+    const std::vector<Spread>& strikeSpreads() const;
+    const std::vector<std::vector<Handle<Quote> > >& volSpreads() const;
+    const boost::shared_ptr<SwapIndex> swapIndexBase() const;
+    const boost::shared_ptr<SwapIndex> shortSwapIndexBase() const;
+    bool vegaWeightedSmileFit() const;
 };
 
 %{
@@ -427,7 +598,7 @@ using QuantLib::SwaptionVolCube2;
 %}
 
 %shared_ptr(SwaptionVolCube1);
-class SwaptionVolCube1 : public SwaptionVolatilityStructure {
+class SwaptionVolCube1 : public SwaptionVolatilityCube {
   public:
     SwaptionVolCube1(
              const Handle<SwaptionVolatilityStructure>& atmVolStructure,
@@ -445,7 +616,12 @@ class SwaptionVolCube1 : public SwaptionVolatilityStructure {
                                            = boost::shared_ptr<EndCriteria>(),
              Real maxErrorTolerance = Null<Real>(),
              const boost::shared_ptr<OptimizationMethod>& optMethod
-                                  = boost::shared_ptr<OptimizationMethod>());
+                                  = boost::shared_ptr<OptimizationMethod>(),
+             const Real errorAccept = Null<Real>(),
+             const bool useMaxError = false,
+             const Size maxGuesses = 50,
+             const bool backwardFlat = false,
+             const Real cutoffStrike = 0.0001);
     Matrix sparseSabrParameters() const;
     Matrix denseSabrParameters() const;
     Matrix marketVolCube() const;
