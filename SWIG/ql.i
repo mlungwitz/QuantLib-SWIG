@@ -163,6 +163,7 @@ QL_DEPRECATED_DISABLE_WARNING
 %include linearalgebra.i
 %include lookbackoptions.i
 %include marketelements.i
+%include marketmodels.i
 %include money.i
 %include montecarlo.i
 %include null.i
