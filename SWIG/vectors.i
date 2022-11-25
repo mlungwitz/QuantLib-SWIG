@@ -24,6 +24,7 @@
 %include stl.i
 %include common.i
 %include date.i
+%include types.i
 
 #if defined(SWIGCSHARP)
 SWIG_STD_VECTOR_ENHANCED( std::pair<Date,double> )
@@ -50,6 +51,8 @@ namespace std {
     %template(DoublePairVector) vector<pair<double,double> >;
     %template(PairDoubleVector) pair<vector<double>,vector<double> >;
     %template(UnsignedIntPair) pair<unsigned int,unsigned int>;
+    
+    %template(SizeVector) vector<Size>;
 
 #if !defined(SWIGR)
     %template(NodePair) pair<Date,double>;

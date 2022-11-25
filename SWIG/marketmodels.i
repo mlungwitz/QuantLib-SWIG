@@ -21,6 +21,7 @@
 %include common.i
 %include linearalgebra.i
 %include observer.i
+%include slv.i
 %include volatilities.i
 
 %{
@@ -581,6 +582,65 @@ class MultiProductPathwiseWrapper : public MarketModelMultiProduct {
     //std::unique_ptr<MarketModelMultiProduct> clone() const override;
     std::vector<Size> suggestedNumeraires() const override;
     const EvolutionDescription& evolution() const override;
+};
+
+%inline %{
+//! Terminal measure: the last bond is used as numeraire.
+std::vector<Size> get_terminalMeasure(const EvolutionDescription& evolution)
+{ return QuantLib::terminalMeasure(evolution);}
+
+/*! Offsetted discretely compounded money market account measure:
+    for each step the offset-th unexpired bond is used as numeraire.
+    When offset=0 the result is the usual discretely compounded money
+    market account measure
+*/
+std::vector<Size> get_moneyMarketPlusMeasure(const EvolutionDescription& evolution,
+                                         Size offset = 1)
+                                         { return QuantLib::moneyMarketPlusMeasure(evolution, offset);}
+
+/*! Discretely compounded money market account measure:
+    for each step the first unexpired bond is used as numeraire.
+*/
+std::vector<Size> get_moneyMarketMeasure(const EvolutionDescription& evolution){ return QuantLib::moneyMarketMeasure(evolution);}
+%}
+
+%{
+using QuantLib::MarketModelEvolver;
+%}
+
+%shared_ptr(MarketModelEvolver);
+class MarketModelEvolver {
+  private:
+    MarketModelEvolver();
+  public:
+    virtual const std::vector<Size>& numeraires() const;
+    virtual Real startNewPath();
+    virtual Real advanceStep();
+    virtual Size currentStep() const;
+    virtual const CurveState& currentState() const;
+    virtual void setInitialState(const CurveState&);
+};
+
+%{
+using QuantLib::LogNormalFwdRatePc;
+%}
+
+%shared_ptr(LogNormalFwdRatePc);
+class LogNormalFwdRatePc : public MarketModelEvolver {
+  public:
+    LogNormalFwdRatePc(const ext::shared_ptr<MarketModel>&,
+                       const BrownianGeneratorFactory&,
+                       const std::vector<Size>& numeraires,
+                       Size initialStep = 0);
+    //! \name MarketModel interface
+    //@{
+    const std::vector<Size>& numeraires() const override;
+    Real startNewPath() override;
+    Real advanceStep() override;
+    Size currentStep() const override;
+    const CurveState& currentState() const override;
+    void setInitialState(const CurveState&) override;
+    //@}
 };
 
 #endif
