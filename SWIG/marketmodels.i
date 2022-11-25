@@ -241,6 +241,20 @@ class PiecewiseConstantCorrelation {
     virtual Size numberOfRates() const;
 };
 
+%inline %{
+Matrix exponentialCorrelations(const std::vector<Time>& rateTimes,
+                               Real longTermCorr = 0.5,
+                               Real beta = 0.2,
+                               Real gamma = 1.0,
+                               Time t = 0.0) {
+    return QuantLib::exponentialCorrelations(rateTimes,
+                                   longTermCorr,
+                                   beta,
+                                   gamma,
+                                   t);
+}
+%}
+
 %{
 using QuantLib::ExponentialForwardCorrelation;
 %}
